@@ -1,29 +1,12 @@
 FROM ghcr.io/alwatr/nherit:4.18.0
 
-COPY etc/nginx/ /etc/nginx/
-# COPY default-data/ /default-data/
-# RUN ls -RlahF /etc/nginx /default-data /data
-
-# Default environment for nginx template
+# Override default environment for static websites
 ENV NGINX_CLIENT_MAX_BODY_SIZE=1k \
-    NGINX_SENDFILE=on \
-    NGINX_SENDFILE_MAX_CHUNK=2m \
-    NGINX_TCP_NOPUSH=on \
-    NGINX_TCP_NODELAY=on \
     NGINX_OPEN_FILE_CACHE="max=1000 inactive=1h" \
     NGINX_OPEN_FILE_CACHE_VALID=1M \
-    NGINX_OPEN_FILE_CACHE_MIN_USES=2 \
-    NGINX_OUTPUT_BUFFERS="8 16k" \
-    NGINX_EXPIRES_DYNAMIC=epoch \
     NGINX_EXPIRES_STATIC=max \
-    NGINX_EXPIRES_DEFAULT=epoch \
     NGINX_LIMIT_REQ_RATE=400 \
-    NGINX_LIMIT_REQ_BURST=1000 \
-    NGINX_GZIP=on \
-    NGINX_GZIP_VARY=on \
-    NGINX_GZIP_COMP_LEVEL=5 \
-    NGINX_GZIP_MIN_LENGTH=256 \
-    NGINX_DISABLE_SYMLINKS=if_not_owner
+    NGINX_GZIP_MIN_LENGTH=256
 
 ARG BUILD_REV
 ARG BUILD_DATE
