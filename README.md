@@ -8,14 +8,14 @@ The recommended method for using the Alwatr Nginx is to place it behind a Kubern
 In this setup, there's no need to configure edge features such as SSL, Domain, etc. in the Alwatr Nginx.
 
 ```Dockerfile
-FROM ghcr.io/alwatr/nginx:2
+FROM ghcr.io/alwatr/nherit:4
 ```
 
 ### Serve Progressive Web Apps
 
 ```Dockerfile
 ARG NODE_VERSION=lts
-ARG ALWATR_NGINX_VERSION=2
+ARG ALWATR_NHERIT_VERSION=4
 FROM docker.io/library/node:${NODE_VERSION} as builder
 WORKDIR /app
 COPY package.json *.lock ./
@@ -29,7 +29,7 @@ RUN yarn build
 
 # ---
 
-FROM ghcr.io/alwatr/nginx-pwa:${ALWATR_NGINX_VERSION} as nginx
+FROM ghcr.io/alwatr/nherit:${ALWATR_NHERIT_VERSION}-pwa as nginx
 # Config nginx
 ENV NGINX_ACCESS_LOG="/var/log/nginx/access.log json"
 # Copy builded files from last stage
@@ -45,7 +45,7 @@ Set `NGINX_LOWERCASE_URI=on` to serve a request path with uppercase letters from
 ENV NGINX_LOWERCASE_URI=on
 ```
 
-A tiny native module (`ngx_http_lowercase_uri_module`, built in the base `nginx` image) adds the `$lowercase_uri` variable, and the root location uses it only as a `try_files` fallback:
+A tiny native module (`ngx_http_lowercase_uri_module`, built in the `base` image) adds the `$lowercase_uri` variable, and the root location uses it only as a `try_files` fallback:
 
 ```nginx
 try_files $uri $uri/ $lowercase_uri $lowercase_uri/ =404;

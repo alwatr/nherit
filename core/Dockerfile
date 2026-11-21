@@ -1,4 +1,4 @@
-FROM ghcr.io/alwatr/nginx:4.18.0
+FROM ghcr.io/alwatr/nherit:4.18.0-base
 
 RUN apk add --no-cache curl libwebp-tools brotli
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --start-interval=1s --retries=3 CMD curl -fso /dev/null http://localhost/server-info || exit 1
@@ -67,16 +67,16 @@ ARG BUILD_DATE
 ARG BUILD_VERSION=dev
 ENV IMAGE_VERSION=$BUILD_VERSION \
     IMAGE_REVISION=$BUILD_REV
-LABEL org.opencontainers.image.title="alwatr/nginx-core" \
+LABEL org.opencontainers.image.title="alwatr/nherit" \
       org.opencontainers.image.description="This is a high-performance version of NGINX, which has been enhanced by Alwatr for the purpose of serving static content efficiently." \
-      org.opencontainers.image.base.name="ghcr.io/alwatr/nginx:4.18.0" \
+      org.opencontainers.image.base.name="ghcr.io/alwatr/nherit:4.18.0-base" \
       org.opencontainers.image.version="4.18.0-nginx1.31.9" \
       org.opencontainers.image.ref.name="4.18.0-nginx1.31.9-alpine-otel" \
       org.opencontainers.image.licenses="MPL-2.0" \
       org.opencontainers.image.created=${BUILD_DATE} \
       org.opencontainers.image.revision=${BUILD_REV} \
       org.opencontainers.image.vendor="Alwatr" \
-      org.opencontainers.image.source="https://github.com/Alwatr/nginx" \
-      org.opencontainers.image.url="https://github.com/Alwatr/nginx" \
-      org.opencontainers.image.documentation="https://github.com/Alwatr/nginx" \
+      org.opencontainers.image.source="https://github.com/Alwatr/nherit" \
+      org.opencontainers.image.url="https://github.com/Alwatr/nherit" \
+      org.opencontainers.image.documentation="https://github.com/Alwatr/nherit" \
       org.opencontainers.image.authors="S. Ali Mihandoost <ali.mihandoost@gmail.com> (https://ali.mihandoost.com)"
