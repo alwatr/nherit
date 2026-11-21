@@ -79,4 +79,4 @@ LABEL org.opencontainers.image.title="alwatr/nherit" \
       org.opencontainers.image.source="https://github.com/Alwatr/nherit" \
       org.opencontainers.image.url="https://github.com/Alwatr/nherit" \
       org.opencontainers.image.documentation="https://github.com/Alwatr/nherit" \
-      org.opencontainers.image.authors="S. Ali Mihandoost <ali.mihandoost@gmail.com> (https://ali.mihandoost.com)"
+      org.opencontainers.image.authors="Ali Mihandoost <ali.mihandoost@gmail.com> (https://ali.mihandoost.com)"
