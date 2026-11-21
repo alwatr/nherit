@@ -16,7 +16,7 @@ fi
 git checkout next
 git pull
 
-current_version=$(sed -n 's#^FROM ghcr.io/alwatr/nginx:\([0-9.]*\).*#\1#p' nginx-core/Dockerfile)
+current_version=$(sed -n 's#^FROM ghcr.io/alwatr/nherit:\([0-9.]*\)-base.*#\1#p' core/Dockerfile)
 
 IFS=. read -r major minor patch <<EOF
 $current_version

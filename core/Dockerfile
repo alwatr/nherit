@@ -1,4 +1,4 @@
-FROM ghcr.io/alwatr/nginx:4.18.0
+FROM ghcr.io/alwatr/nherit:4.18.0-base
 
 RUN apk add --no-cache curl libwebp-tools brotli
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --start-interval=1s --retries=3 CMD curl -fso /dev/null http://localhost/server-info || exit 1
@@ -15,7 +15,6 @@ ENV NGINX_WORKER_CONNECTIONS=2048 \
     NGINX_ACCESS_LOG="off" \
     NGINX_ENABLE_ACCESS_LOG="on" \
     NGINX_ERROR_LOG_LEVEL=notice \
-    NGINX_WORKER_CONNECTIONS=2048 \
     NGINX_LIMIT_REQ_ERROR=503 \
     NGINX_LIMIT_REQ_LOG=notice \
     NGINX_AUTOINDEX=off \
@@ -53,13 +52,14 @@ ENV NGINX_CLIENT_MAX_BODY_SIZE=10m \
     NGINX_GZIP_STATIC=off \
     NGINX_GZIP_VARY=on \
     NGINX_GZIP_COMP_LEVEL=5 \
-    NGINX_GZIP_MIN_LENGTH=500 \
+    NGINX_GZIP_MIN_LENGTH=256 \
     NGINX_BROTLI=on \
     NGINX_BROTLI_STATIC=off \
     NGINX_BROTLI_COMP_LEVEL=6 \
     NGINX_BROTLI_MIN_LENGTH=50 \
     NGINX_DISABLE_SYMLINKS=if_not_owner \
     NGINX_LOWERCASE_URI="off" \
+    NGINX_CONFIG_JS_URI="" \
     NGINX_PERMISSIONS_POLICY="geolocation=(), microphone=(), camera=()"
 
 ARG BUILD_REV
@@ -67,16 +67,16 @@ ARG BUILD_DATE
 ARG BUILD_VERSION=dev
 ENV IMAGE_VERSION=$BUILD_VERSION \
     IMAGE_REVISION=$BUILD_REV
-LABEL org.opencontainers.image.title="alwatr/nginx-core" \
+LABEL org.opencontainers.image.title="alwatr/nherit" \
       org.opencontainers.image.description="This is a high-performance version of NGINX, which has been enhanced by Alwatr for the purpose of serving static content efficiently." \
-      org.opencontainers.image.base.name="ghcr.io/alwatr/nginx:4.18.0" \
+      org.opencontainers.image.base.name="ghcr.io/alwatr/nherit:4.18.0-base" \
       org.opencontainers.image.version="4.18.0-nginx1.31.9" \
       org.opencontainers.image.ref.name="4.18.0-nginx1.31.9-alpine-otel" \
       org.opencontainers.image.licenses="MPL-2.0" \
       org.opencontainers.image.created=${BUILD_DATE} \
       org.opencontainers.image.revision=${BUILD_REV} \
       org.opencontainers.image.vendor="Alwatr" \
-      org.opencontainers.image.source="https://github.com/Alwatr/nginx" \
-      org.opencontainers.image.url="https://github.com/Alwatr/nginx" \
-      org.opencontainers.image.documentation="https://github.com/Alwatr/nginx" \
-      org.opencontainers.image.authors="S. Ali Mihandoost <ali.mihandoost@gmail.com> (https://ali.mihandoost.com)"
+      org.opencontainers.image.source="https://github.com/Alwatr/nherit" \
+      org.opencontainers.image.url="https://github.com/Alwatr/nherit" \
+      org.opencontainers.image.documentation="https://github.com/Alwatr/nherit" \
+      org.opencontainers.image.authors="Ali Mihandoost <ali.mihandoost@gmail.com> (https://ali.mihandoost.com)"

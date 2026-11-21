@@ -39,34 +39,39 @@ jobs:
         uses: dorny/paths-filter@v4
         with:
           filters: |
-            nginx: nginx/**
-            nginx-core: nginx-core/**
-            nginx-ws: nginx-ws/**
-            nginx-cdn: nginx-cdn/**
-            nginx-json: nginx-json/**
-            nginx-pwa: nginx-pwa/**
+            base: base/**
+            core: core/**
+            ws: ws/**
+            cdn: cdn/**
+            pwa: pwa/**
 
       # Build in dependency order on one runner. Each image is also tagged as the exact base image
       # that its children use in FROM, so they are tested on this commit, not on the last release.
       # An image is tested when its folder changed or its base image was built here (release: all).
       - name: 🧪 Build and test changed containers
         env:
-          CHANGED: ${{ join(fromJSON(steps.file_change.outputs.changes || '["nginx"]'), ' ') }}
+          CHANGED: ${{ join(fromJSON(steps.file_change.outputs.changes || '["base"]'), ' ') }}
         run: |
           echo "Changed: $CHANGED"
           built=""
-          for path in nginx nginx-core nginx-ws nginx-cdn nginx-json nginx-pwa; do
-            parent=$(sed -n "s#^FROM ghcr.io/$USER/\([^:]*\):.*#\1#p" "$path/Dockerfile")
+          for path in base core ws cdn pwa; do
+            from=$(sed -n "s#^FROM \(ghcr.io/$USER/nherit:[^ ]*\).*#\1#p" "$path/Dockerfile")
+            case "$from" in
+            *-base) parent="base" ;;
+            "") parent="none" ;;
+            *) parent="core" ;;
+            esac
             case " $CHANGED $built " in
-            *" $path "* | *" ${parent:-none} "*) ;;
+            *" $path "* | *" $parent "*) ;;
             *) echo "Skip $path"; continue ;;
             esac
             echo "::group::Build and test $path"
-            docker build -t "$USER/$path:test" "./$path"
-            docker run --rm -e TEST_MODE=1 "$USER/$path:test" /etc/nginx/entrypoint.sh nginx -T -c /etc/nginx/nginx.conf
+            docker build -t "$USER/nherit:$path-test" "./$path"
+            docker run --rm -e TEST_MODE=1 "$USER/nherit:$path-test" /etc/nginx/entrypoint.sh nginx -T -c /etc/nginx/nginx.conf
+            suffix=""; [ "$path" != "core" ] && suffix="-$path"
             for child in */Dockerfile; do
-              base=$(sed -n "s#^FROM \(ghcr.io/$USER/$path:[^ ]*\).*#\1#p" "$child")
-              if [ -n "$base" ]; then docker tag "$USER/$path:test" "$base"; fi
+              child_from=$(sed -En "s#^FROM (ghcr.io/$USER/nherit:[0-9.]*$suffix)([[:space:]].*)?\$#\1#p" "$child")
+              if [ -n "$child_from" ]; then docker tag "$USER/nherit:$path-test" "$child_from"; fi
             done
             built="$built $path"
             echo "::endgroup::"
@@ -84,12 +89,16 @@ jobs:
       max-parallel: 1
       matrix:
         include:
-          - path: nginx
-          - path: nginx-core
-          - path: nginx-ws
-          - path: nginx-cdn
-          - path: nginx-json
-          - path: nginx-pwa
+          - path: base
+            suffix: -base
+          - path: core
+            suffix: ''
+          - path: ws
+            suffix: -ws
+          - path: cdn
+            suffix: -cdn
+          - path: pwa
+            suffix: -pwa
 
     permissions:
       contents: read
@@ -146,13 +155,15 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           images: |
-            name=ghcr.io/${{env.USER}}/${{matrix.path}},enable=true
-            name=docker.io/${{env.USER}}/${{matrix.path}},enable=true
+            name=ghcr.io/${{env.USER}}/nherit,enable=true
+            name=docker.io/${{env.USER}}/nherit,enable=true
+          flavor: |
+            latest=${{ matrix.path == 'core' }}
           tags: |
-            type=semver,enable=true,pattern={{major}}
-            type=semver,enable=true,pattern={{major}}.{{minor}}
-            type=semver,enable=true,pattern={{version}}
-            type=ref,enable=true,event=branch
+            type=semver,enable=true,pattern={{major}}${{matrix.suffix}}
+            type=semver,enable=true,pattern={{major}}.{{minor}}${{matrix.suffix}}
+            type=semver,enable=true,pattern={{version}}${{matrix.suffix}}
+            type=ref,enable=true,event=branch,suffix=${{matrix.suffix}}
 
       - name: 🚀 Build and publish container image
         if: ${{ steps.file_change.outputs.container_folder != 'false' }}
